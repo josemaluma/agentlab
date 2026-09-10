@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 
+from .config import app_description, app_name, app_version
+
 
 app = FastAPI(
-    title="AgentLab API",
-    description="Minimal API for the AgentLab project.",
+    title=app_name,
+    version=app_version,
+    description=app_description,
 )
 
 
@@ -12,5 +15,5 @@ def read_root() -> dict[str, str]:
     """Return the API status and current version."""
     return {
         "message": "AgentLab API is running",
-        "version": "0.1.0",
+        "version": app_version,
     }
