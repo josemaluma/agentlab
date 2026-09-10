@@ -2,6 +2,10 @@
 
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 app_name = "AgentLab API"
 app_version = "0.1.0"
 app_description = "Minimal API for the AgentLab project."
