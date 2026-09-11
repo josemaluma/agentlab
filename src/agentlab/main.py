@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 from .config import app_description, app_name, app_version
-from .openai_client import AgentLabOpenAIClient
+from .service import AgentLabService
 
 
 class AskRequest(BaseModel):
@@ -31,6 +31,6 @@ def read_root() -> dict[str, str]:
 
 @app.post("/ask", response_model=AskResponse)
 def ask(request: AskRequest) -> AskResponse:
-    """Send a prompt to the configured AgentLab OpenAI client."""
-    client = AgentLabOpenAIClient()
-    return AskResponse(answer=client.ask(request.prompt))
+    """Send a prompt to the configured AgentLab service."""
+    service = AgentLabService()
+    return AskResponse(answer=service.ask(request.prompt))

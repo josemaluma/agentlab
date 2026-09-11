@@ -16,17 +16,17 @@ def test_read_root() -> None:
     assert response.json()["version"] == "0.1.0"
 
 
-def test_ask_returns_client_answer(monkeypatch) -> None:
-    client_instance = Mock()
-    client_instance.ask.return_value = "Test answer"
-    client_constructor = Mock(return_value=client_instance)
-    monkeypatch.setattr(main, "AgentLabOpenAIClient", client_constructor)
+def test_ask_returns_service_answer(monkeypatch) -> None:
+    service_instance = Mock()
+    service_instance.ask.return_value = "Test answer"
+    service_constructor = Mock(return_value=service_instance)
+    monkeypatch.setattr(main, "AgentLabService", service_constructor)
 
     response = client.post("/ask", json={"prompt": "Test prompt"})
 
     assert response.status_code == 200
     assert response.json() == {"answer": "Test answer"}
-    client_instance.ask.assert_called_once_with("Test prompt")
+    service_instance.ask.assert_called_once_with("Test prompt")
 
 
 def test_ask_requires_prompt() -> None:
