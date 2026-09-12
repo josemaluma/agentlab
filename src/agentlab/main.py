@@ -1,8 +1,15 @@
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-from .config import app_description, app_name, app_version
-from .service import AgentLabService
+from agentlab.domain import ResearchReport, ResearchRequest
+from agentlab.research_service import ResearchService
+from agentlab.service import AgentLabService
+
+
+app = FastAPI(
+    title="AgentLab API",
+    description="Minimal API for the AgentLab project.",
+)
 
 
 class AskRequest(BaseModel):
@@ -13,24 +20,25 @@ class AskResponse(BaseModel):
     answer: str
 
 
-app = FastAPI(
-    title=app_name,
-    version=app_version,
-    description=app_description,
-)
-
-
 @app.get("/")
 def read_root() -> dict[str, str]:
     """Return the API status and current version."""
     return {
         "message": "AgentLab API is running",
-        "version": app_version,
+        "version": "0.1.0",
     }
 
 
 @app.post("/ask", response_model=AskResponse)
 def ask(request: AskRequest) -> AskResponse:
-    """Send a prompt to the configured AgentLab service."""
+    """Answer a direct user prompt."""
     service = AgentLabService()
-    return AskResponse(answer=service.ask(request.prompt))
+    answer = service.ask(request.prompt)
+    return AskResponse(answer=answer)
+
+
+@app.post("/research", response_model=ResearchReport)
+def research(request: ResearchRequest) -> ResearchReport:
+    """Run a research request."""
+    service = ResearchService()
+    return service.research(request)
