@@ -1,16 +1,19 @@
-"""Application service for deterministic research reports."""
+
+""""Application service for research operations."""
 
 from .domain import ResearchReport, ResearchRequest
+from .openai_client import AgentLabOpenAIClient
 
 
 class ResearchService:
-    """Create a research report without external research."""
+    """Handle research requests using the OpenAI client."""
+
+    def __init__(self, client: AgentLabOpenAIClient) -> None:
+        self.client = client
 
     def research(self, request: ResearchRequest) -> ResearchReport:
-        """Return a deterministic placeholder report for a research request."""
-        return ResearchReport(
+        """Generate a structured research report."""
+        return self.client.research(
             question=request.question,
-            summary="Research has not been executed yet.",
-            findings=[],
-            limitations=["This report was generated without external research."],
+            context=request.context,
         )

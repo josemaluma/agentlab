@@ -1,11 +1,7 @@
 from unittest.mock import Mock
 
-from fastapi.testclient import TestClient
-
-from agentlab import main
-
 import pytest
-from unittest.mock import Mock
+from fastapi.testclient import TestClient
 
 import agentlab.main as main
 from agentlab.domain import ResearchReport, ResearchRequest
@@ -56,11 +52,11 @@ def test_research_endpoint_returns_report(
         limitations=["Limitation 1"],
     )
 
-    monkeypatch.setattr(
-        main,
-        "ResearchService",
-        Mock(return_value=service_instance),
-    )
+    service_constructor = Mock(return_value=service_instance)
+    client_constructor = Mock()
+
+    monkeypatch.setattr(main, "ResearchService", service_constructor)
+    monkeypatch.setattr(main, "AgentLabOpenAIClient", client_constructor)
 
     response = client.post(
         "/research",
@@ -74,6 +70,9 @@ def test_research_endpoint_returns_report(
         "findings": ["Finding 1"],
         "limitations": ["Limitation 1"],
     }
+
+    client_constructor.assert_called_once_with()
+    service_constructor.assert_called_once_with(client=client_constructor.return_value)
 
     service_instance.research.assert_called_once()
     request = service_instance.research.call_args.args[0]

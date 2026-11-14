@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 from agentlab.domain import ResearchReport, ResearchRequest
+from agentlab.openai_client import AgentLabOpenAIClient
 from agentlab.research_service import ResearchService
 from agentlab.service import AgentLabService
 
@@ -40,5 +41,5 @@ def ask(request: AskRequest) -> AskResponse:
 @app.post("/research", response_model=ResearchReport)
 def research(request: ResearchRequest) -> ResearchReport:
     """Run a research request."""
-    service = ResearchService()
+    service = ResearchService(client=AgentLabOpenAIClient())
     return service.research(request)
