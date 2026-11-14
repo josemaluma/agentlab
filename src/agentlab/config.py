@@ -13,3 +13,4 @@ app_description = "Minimal API for the AgentLab project."
 # Keep secrets outside the source code.  An unset key remains None.
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL") or "gpt-4.1-mini"
+RESEARCH_MODEL = os.getenv("RESEARCH_MODEL") or "gpt-6-astra"

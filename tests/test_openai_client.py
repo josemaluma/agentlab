@@ -1,3 +1,4 @@
+
 from unittest.mock import Mock
 
 import pytest
@@ -13,9 +14,12 @@ def test_client_requires_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
         openai_client.AgentLabOpenAIClient()
 
 
-def test_client_is_created_with_test_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_client_is_created_with_test_api_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     sdk_client = object()
     openai_constructor = Mock(return_value=sdk_client)
+
     monkeypatch.setattr(openai_client, "OPENAI_API_KEY", "test-api-key")
     monkeypatch.setattr(openai_client, "OpenAI", openai_constructor)
 
@@ -25,7 +29,9 @@ def test_client_is_created_with_test_api_key(monkeypatch: pytest.MonkeyPatch) ->
     assert client.client is sdk_client
 
 
-def test_client_keeps_configured_model(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_client_keeps_configured_model(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(openai_client, "OPENAI_API_KEY", "test-api-key")
     monkeypatch.setattr(openai_client, "OPENAI_MODEL", "test-model")
     monkeypatch.setattr(openai_client, "OpenAI", Mock())
@@ -35,12 +41,29 @@ def test_client_keeps_configured_model(monkeypatch: pytest.MonkeyPatch) -> None:
     assert client.model == "test-model"
 
 
+def test_client_keeps_configured_research_model(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(openai_client, "OPENAI_API_KEY", "test-api-key")
+    monkeypatch.setattr(
+        openai_client,
+        "RESEARCH_MODEL",
+        "test-research-model",
+    )
+    monkeypatch.setattr(openai_client, "OpenAI", Mock())
+
+    client = openai_client.AgentLabOpenAIClient()
+
+    assert client.research_model == "test-research-model"
+
+
 def test_ask_sends_prompt_and_returns_response_text(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     response = Mock(output_text="Test response")
     sdk_client = Mock()
     sdk_client.responses.create.return_value = response
+
     monkeypatch.setattr(openai_client, "OPENAI_API_KEY", "test-api-key")
     monkeypatch.setattr(openai_client, "OPENAI_MODEL", "test-model")
     monkeypatch.setattr(openai_client, "OpenAI", Mock(return_value=sdk_client))
@@ -55,6 +78,7 @@ def test_ask_sends_prompt_and_returns_response_text(
         input=prompt,
     )
     assert result == response.output_text
+
 
 def test_research_returns_structured_report(
     monkeypatch: pytest.MonkeyPatch,
@@ -73,6 +97,11 @@ def test_research_returns_structured_report(
 
     monkeypatch.setattr(openai_client, "OPENAI_API_KEY", "test-api-key")
     monkeypatch.setattr(openai_client, "OPENAI_MODEL", "test-model")
+    monkeypatch.setattr(
+        openai_client,
+        "RESEARCH_MODEL",
+        "test-research-model",
+    )
     monkeypatch.setattr(openai_client, "OpenAI", Mock(return_value=sdk_client))
 
     client = openai_client.AgentLabOpenAIClient()
@@ -86,7 +115,8 @@ def test_research_returns_structured_report(
 
     call_arguments = sdk_client.responses.parse.call_args.kwargs
 
-    assert call_arguments["model"] == "test-model"
+    assert call_arguments["model"] == "test-research-model"
+    assert call_arguments["tools"] == [{"type": "web_search"}]
     assert call_arguments["text_format"] is ResearchReport
     assert "What is AgentLab?" in call_arguments["input"]
     assert "A project built with Python." in call_arguments["input"]

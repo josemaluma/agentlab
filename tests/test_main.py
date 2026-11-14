@@ -69,6 +69,7 @@ def test_research_endpoint_returns_report(
         "summary": "Test summary",
         "findings": ["Finding 1"],
         "limitations": ["Limitation 1"],
+        "sources": [],
     }
 
     client_constructor.assert_called_once_with()
